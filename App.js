@@ -1,19 +1,25 @@
 import React, {useState, useEffect} from 'react';
-import {View, StyleSheet, Image, TouchableOpacity, Alert} from 'react-native';
+import {View, StyleSheet, Image, TouchableOpacity} from 'react-native';
 import Torch from 'react-native-torch';
 import RNShake from 'react-native-shake';
 
 const App = () => {
   const [toggle, setToggle] = useState(false);
 
-  const handleChangeToggle = () => setToggle(oldToggle => !oldToggle);
   useEffect(() => {
     Torch.switchState(toggle);
   }, [toggle]);
 
+  useEffect(() => {
+    const subscription = RNShake.addListener(() => {
+      setToggle(old => !old);
+    });
+    return () => subscription.remove();
+  }, []);
+
   return (
-    <View style={toggle ? style.containerLight : style.container}>
-      <TouchableOpacity onPress={handleChangeToggle}>
+    <View style={style.container}>
+      <TouchableOpacity onPress={() => setToggle(old => !old)}>
         <Image
           style={toggle ? style.lightingOn : style.lightingOff}
           source={
@@ -44,12 +50,6 @@ const style = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  containerLight: {
-    flex: 1,
-    backgroundColor: 'white',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   lightingOn: {
     resizeMode: 'contain',
     alignSelf: 'center',
@@ -66,7 +66,7 @@ const style = StyleSheet.create({
   dioLogo: {
     resizeMode: 'contain',
     alignSelf: 'center',
-    width: 300,
-    height: 300,
+    width: 250,
+    height: 250,
   },
 });
